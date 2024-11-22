@@ -1,5 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 #include "funciones.h"
+
+#define NOMBRES 50
+
+int MAX_PRODUCTOS;
 
 void limpiarBuffer()
 {
@@ -7,73 +12,87 @@ void limpiarBuffer()
         ;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
-    float productos[productos_maximos][2] = {0};
-    char nombresp[productos_maximos][nombres] = {""};
-    int opcion = 0;
-    float tmax = 0, cmax = 0, tt = 0, ct = 0;
-    printf("Bienvenido al programa de gestion de produccion\n");
+    do
+    {
+        printf("Ingrese el numero maximo de items para la orden de produccion (maximo 5): \n");
+        if (scanf("%d", &MAX_PRODUCTOS) == 1 && MAX_PRODUCTOS > 0 && MAX_PRODUCTOS <= 5)
+        {
+            break;
+        }
+        printf("Entrada invalida. Solo puedes ingresar maximo 5 productos. Intente nuevamente.\n");
+        limpiarBuffer();
+    } while (1);
+
+    char nombres[MAX_PRODUCTOS][NOMBRES]; 
+    float productos[MAX_PRODUCTOS][3]; 
+    float costosD[MAX_PRODUCTOS];     
+    float Tmax = 0, Cmax = 0, tT = 0, cT = 0; 
+    int opc1 = 0, opc2 = 0;
 
     do
     {
-        printf("\n---------- Menu Principal -------------\n");
-        printf("1. Ingresar datos de Produccion\n");
-        printf("2. Editar datos de Produccion\n");
-        printf("3. Mostrar resumen de Produccion\n");
-        printf("4. Eliminar un Producto\n");
+        printf("\n----------------- Menu -----------------\n");
+        printf("1. Ingresar datos\n");
+        printf("2. Imprimir datos\n");
+        printf("3. Editar Productos\n");
+        printf("4. Eliminar Producto\n");
         printf("5. Salir\n");
-        printf("---------------------------------------\n");
+        printf("----------------------------------------\n");
         printf("Seleccione una opcion: ");
 
-        if (scanf("%d", &opcion) != 1)
+        if (scanf("%d", &opc1) != 1)
         {
             printf("Entrada invalida. Intente nuevamente.\n");
             limpiarBuffer();
             continue;
         }
 
-        limpiarBuffer();
-        switch (opcion)
+        limpiarBuffer(); 
+        switch (opc1)
         {
         case 1:
-            ingresardatos(nombresp, productos, &cmax, &tmax);
-            calculartotal(productos, &tt, &ct);
+            ingresardatos(nombres, productos, &Cmax, &Tmax);
+            costos(productos, costosD); 
+            calcularTotales(productos, &tT, &cT, costosD);
             break;
 
         case 2:
-            if (ct == 0)
-            {
-                printf("No hay productos registrados para editar.\n");
-            }
-            else
-            {
-                editarProducto(nombresp, productos);
-                calculartotal(productos, &tt, &ct);
-            }
-            break;
-
-        case 3:
-            if (ct == 0)
+            if (cT == 0)
             {
                 printf("No hay productos registrados para mostrar.\n");
             }
             else
             {
-                imprimirdatos(nombresp, productos, cmax, tmax, tt, ct);
+                imprimirdatos(nombres, productos, Cmax, Tmax, cT, tT);
+            }
+            break;
+
+        case 3:
+            if (cT == 0)
+            {
+                printf("No hay productos registrados para editar.\n");
+            }
+            else
+            {
+                editarProducto(nombres, productos);
+                costos(productos, costosD); 
+                calcularTotales(productos, &tT, &cT, costosD); 
             }
             break;
 
         case 4:
-            if (ct == 0)
+            if (cT == 0)
             {
                 printf("No hay productos registrados para eliminar.\n");
             }
             else
             {
-                eliminar(nombresp, productos);
-                calculartotal(productos, &tt, &ct);
-            }
+                eliminar(nombres, productos);
+                costos(productos, costosD);
+                calcularTotales(productos, &tT, &cT, costosD);
+           }
             break;
 
         case 5:
@@ -84,7 +103,19 @@ int main(int argc, char *argv[])
             printf("Opcion invalida. Intente nuevamente.\n");
             break;
         }
-    } while (opcion != 5);
 
+        if (opc1 != 5)
+        {
+            printf("\nDesea continuar?\n1. Si\n2. No\n");
+            if (scanf("%d", &opc2) != 1 || (opc2 != 1 && opc2 != 2))
+            {
+                printf("Entrada invalida. Saliendo del programa...\n");
+                break;
+            }
+            limpiarBuffer();
+        }
+    } while (opc1 != 5 && opc2 == 1);
+
+    printf("Saliendo.....\n");
     return 0;
 }

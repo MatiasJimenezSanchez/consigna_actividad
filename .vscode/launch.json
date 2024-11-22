@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/MATI/OneDrive/Documentos/consignaactividad/consigna_actividad",
-      "program": "c:/Users/MATI/OneDrive/Documentos/consignaactividad/consigna_actividad/build/Debug/outDebug",
+      "cwd": "c:/Users/MATI/consigna/consigna_actividad-1",
+      "program": "c:/Users/MATI/consigna/consigna_actividad-1/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

@@ -2,12 +2,15 @@
 #include <string.h>
 #include "funciones.h"
 
-void ingresardatos(char nombresp[productos_maximos][nombres], float productos[productos_maximos][2], float *CantidadMAx, float *tiempoMax)
+#define NOMBRES 50
+
+void ingresardatos(char nombres[MAX_PRODUCTOS][NOMBRES], float productos[MAX_PRODUCTOS][3], float *presuI, float *TiempoMax)
 {
+
     do
     {
-        printf("Ingresar la cantidad total de recursos economicos($) disponibles para producir su producto: ");
-        if (scanf("%f", CantidadMAx) == 1 && *CantidadMAx > 0)
+        printf("Ingrese el presupuesto inicial ($): \n");
+        if (scanf("%f", presuI) == 1 && *presuI > 0)
         {
             break;
         }
@@ -16,10 +19,11 @@ void ingresardatos(char nombresp[productos_maximos][nombres], float productos[pr
         while (getchar() != '\n')
             ;
     } while (1);
+
     do
     {
-        printf("Ingresar el tiempo maximo de produccion disponible (en semanas): ");
-        if (scanf("%f", tiempoMax) == 1 && *tiempoMax > 0)
+        printf("Ingrese el tiempo total demando (horas): \n");
+        if (scanf("%f", TiempoMax) == 1 && *TiempoMax > 0)
         {
             break;
         }
@@ -27,16 +31,17 @@ void ingresardatos(char nombresp[productos_maximos][nombres], float productos[pr
         while (getchar() != '\n')
             ;
     } while (1);
-    for (int i = 0; i < productos_maximos; i++)
+
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
     {
         printf("\nProducto %d:\n", i + 1);
         printf("Ingresa el nombre del producto %d: ", i + 1);
         fflush(stdin);
-        fgets(nombresp[i], nombres, stdin);
-        nombresp[i][strcspn(nombresp[i], "\n")] = '\0';
+        gets(nombres[i]);   
+
         do
         {
-            printf("Ingresar la cantidad economica para realizar este producto ($): ");
+            printf("Ingrese los costos unitarios del producto %d ($) \n", i + 1);
             if (scanf("%f", &productos[i][0]) == 1 && productos[i][0] > 0)
             {
                 break;
@@ -45,10 +50,23 @@ void ingresardatos(char nombresp[productos_maximos][nombres], float productos[pr
             while (getchar() != '\n')
                 ;
         } while (1);
+
         do
         {
-            printf("Ingrese el tiempo de produccion requerido para este producto (en semanas): ");
+            printf("Ingresa El tiempo de producion del producto %d (horas)\n", i + 1);
             if (scanf("%f", &productos[i][1]) == 1 && productos[i][1] > 0)
+            {
+                break;
+            }
+            printf("Entrada invalida. Intente nuevamente.\n");
+            while (getchar() != '\n')
+                ;
+        } while (1);
+
+        do
+        {
+            printf("Ingresa la demanda de producion del producto (unidades) %d\n", i + 1);
+            if (scanf("%f", &productos[i][2]) == 1 && productos[i][2] > 0)
             {
                 break;
             }
@@ -59,64 +77,101 @@ void ingresardatos(char nombresp[productos_maximos][nombres], float productos[pr
     }
 }
 
-void calculartotal(float productos[productos_maximos][2], float *tiempoT, float *cantidadT)
+void costos(float productos[MAX_PRODUCTOS][3], float CostoD[MAX_PRODUCTOS])
 {
-    *cantidadT = 0;
-    *tiempoT = 0;
-    float *ptr = &productos[0][0];
-    for (int i = 0; i < productos_maximos; i++, ptr += 2)
+
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
     {
-        *cantidadT += *ptr;
-        *tiempoT += *(ptr + 1);
+        CostoD[i] = ((productos[i][0] * productos[i][1]) * productos[i][2]);
+
+        printf("\nCosto por producion del producto %d del pedido es: %2.f$\n", i + 1, CostoD[i]);
     }
 }
 
-void imprimirdatos(char nom[productos_maximos][nombres], float productos[productos_maximos][2], float cantidadMax, float tiempoMax, float tiempot, float cantidad)
+void calcularTotales(float productos[MAX_PRODUCTOS][3], float *tiempoT, float *costoT, float costoD[MAX_PRODUCTOS])
 {
-    printf("\n------Resumen de produccion--------\n");
-    printf("Cantidad total de recursos economicos disponibles: %.2f $\n", cantidadMax);
-    printf("Tiempo maximo disponible: %.2f semanas\n", tiempoMax);
-    for (int i = 0; i < productos_maximos; i++)
+
+    float sumaT = 0, sumaC = 0;
+
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
     {
-        if (productos[i][0] > 0 && productos[i][1] > 0)
+        sumaT += (productos[i][1] * productos[i][2]);
+    }
+
+    *tiempoT = sumaT;
+
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
+    {
+        sumaC += costoD[i];
+    }
+
+    *costoT = sumaC;
+}
+
+void imprimirdatos(char nombres[MAX_PRODUCTOS][NOMBRES], float productos[MAX_PRODUCTOS][3], float presuI, float TiempoMax, float costoT, float tiempoT)
+{
+    printf("\n");
+    printf("\tCantidad Disponible: %2.f\n", presuI);
+    printf("\tTiempo Disponible: %2.f\n", TiempoMax);
+    printf("--------------------------------------------------------------------------\n");
+    printf("\n");
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
+    {
+        if (productos[i][1] != 0 && productos[i][1] != 0)
         {
-            printf("producto %d:\n", i + 1);
-            printf("nombre : %s\n", nom[i]);
-            printf("cantidad de economica demanda: %.2f $\n", productos[i][0]);
-            printf("tiempo de produccion: %.2f semanas\n", productos[i][1]);
+            printf("\t*Nombre del producto*: %s\nCosto de produccion: %2.f\nTiempo de produccion: %2.f\nDemanda: %2.f\n", nombres[i], productos[i][0], productos[i][1], productos[i][2]);
         }
     }
-    printf("Resultados: \n");
-    printf("Tiempo total requerido: %.2f semanas \n", tiempot);
-    if (tiempot > tiempoMax)
-        printf("El tiempo requerido excede el tiempo disponible\n");
+
+    printf("\n");
+    printf("Tiempo Disponible: %.2f\n",TiempoMax);
+    if (tiempoT > TiempoMax)
+    {
+        float resta = tiempoT - TiempoMax;
+        printf("\nTiempo Total %.2f\n", tiempoT);
+        printf("No hay suficiente tiempo disponible para la producion\nLas horas faltantes son %.2f\n", resta);
+    }
+
     else
-        printf("El tiempo requerido esta dentro del tiempo disponible\n");
-    printf("Cantidad total requerida: %2.f unidades\n", cantidad);
-    if (cantidad > cantidadMax)
-        printf("La cantidad economica requerida excede los recursos disponibles\n");
+
+    {
+        printf("El tiempo demandado esta dentro del tiempo de producion\n");
+    }
+
+    printf("\nCantidad Disponible:\n");
+
+    if (costoT > presuI)
+    {
+        float restaD = costoT - presuI;
+
+        printf("No se puede cumplir con la demanda, el costo de producion sobrepasa el presupuesto inicial\nPara cumplir con la demanda se requiere los siguientes fondos adicionales: %.2f\n", restaD);
+        printf("Ingrese nuevamente los datos en el menu con un nuevo presupuesto (En caso de que exita un adelanto)");
+    }
     else
-        printf("La cantidad economica requerida cumple los recursos disponibles\n");
+    {
+        printf("Si se puede cumplir con la demanda\n");
+    }
 }
 
-void editarProducto(char nom[productos_maximos][nombres], float productos[productos_maximos][2])
+void editarProducto(char nombres[MAX_PRODUCTOS][NOMBRES], float productos[MAX_PRODUCTOS][3])
 {
-    char buscarnombre[nombres];
+    char buscarnombre[NOMBRES];
 
     printf("\nIngrese el nombre del producto que desea editar\n");
     fflush(stdin);
     gets(buscarnombre);
 
-    for (int i = 0; i < productos_maximos; i++)
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
     {
-        if (strcmp(nom[i], buscarnombre) == 0)
+        if (strcmp(nombres[i], buscarnombre) == 0)
         {
             printf("Ingresa el nuevo nombre del producto\n");
             fflush(stdin);
-            gets(nom[i]);
+            gets(nombres[i]);
+
             do
             {
-                printf("Ingresar la nueva cantidad economica demandada para realizar este producto ($): ");
+                printf("Ingrese el nuevo costo unitario del producto %d ($) \n", i + 1);
                 if (scanf("%f", &productos[i][0]) == 1 && productos[i][0] > 0)
                 {
                     break;
@@ -125,9 +180,10 @@ void editarProducto(char nom[productos_maximos][nombres], float productos[produc
                 while (getchar() != '\n')
                     ;
             } while (1);
+
             do
             {
-                printf("Ingrese el nuevo tiempo de produccion requerido para este producto (en semanas): ");
+                printf("Ingresa el nuevo tiempo de producion del producto %d (horas)\n", i + 1);
                 if (scanf("%f", &productos[i][1]) == 1 && productos[i][1] > 0)
                 {
                     break;
@@ -136,6 +192,19 @@ void editarProducto(char nom[productos_maximos][nombres], float productos[produc
                 while (getchar() != '\n')
                     ;
             } while (1);
+
+            do
+            {
+                printf("Ingresa la demanda de producion del producto  %d (unidades)\n", i + 1);
+                if (scanf("%f", &productos[i][2]) == 1 && productos[i][2] > 0)
+                {
+                    break;
+                }
+                printf("Entrada invalida. Intente nuevamente.\n");
+                while (getchar() != '\n')
+                    ;
+            } while (1);
+
             return;
         }
     }
@@ -143,39 +212,26 @@ void editarProducto(char nom[productos_maximos][nombres], float productos[produc
     printf("Producto no encontrado\n");
 }
 
-void eliminar(char nom[productos_maximos][nombres], float productos[productos_maximos][2])
+void eliminar(char nombres[MAX_PRODUCTOS][NOMBRES], float productos[MAX_PRODUCTOS][3])
 {
-    char buscarnombre[nombres];
 
-    printf("\nIngrese el nombre del producto que desea eliminar: ");
-    fgets(buscarnombre, nombres, stdin);
-    buscarnombre[strcspn(buscarnombre, "\n")] = '\0';
+    char buscarnombre[NOMBRES];
 
-    for (int i = 0; i < productos_maximos; i++)
+    printf("\nIngrese el nombre del producto que desea eliminar\n");
+    fflush(stdin);
+    gets(buscarnombre);
+
+    for (int i = 0; i < MAX_PRODUCTOS; i++)
     {
-        if (strcmp(nom[i], buscarnombre) == 0)
+        if (strcmp(nombres[i], buscarnombre) == 0)
         {
-            strcpy(nom[i], "");
+            strcpy(nombres[i], "");
             productos[i][0] = 0;
             productos[i][1] = 0;
-            printf("Producto '%s' eliminado con exito.\n", buscarnombre);
+            printf("Producto Eliminado\n");
             return;
         }
     }
 
-    printf("Producto no encontrado.\n");
+    printf("Producto no encontrado\n");
 }
-
-/*PRESUESTO GLOBAL = 1000
-0
-
-SE REQUIERE FABRICAR 5 PRODUCTOS 
-
-SE DEMORAN 3 HORAS EN PRODUCIR CADA PRODUCTO 
-
-COSTOT = 15 DOLARES 
-
-SI SE PASA DEL PROSUPUERTO GLOBAL SOLICITAR AL USUARIO QUE SINGRISE SI SE VA TENER UN ADELANTO 
-
-ADELANTO + PRESUPUERTO GLOBAL
-*/
